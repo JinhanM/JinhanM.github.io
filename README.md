@@ -157,7 +157,7 @@ plt.show()
 
 ​	In Hard Margain SVM, we are making a decision boundary that correctly classify every point. This seems like classify the data very precisely, but **Hard Margain SVM is very sensitve to outliers**. For example, if we add one outlier into our data, and we run Hard Margain SVM again, the decision boundary would be dramaticly influenced by the outlier, and be not accurate anymore.
 
-<img src="/Users/jinhanmei/Desktop/TODO 2020 APRIL/JinhanM.github.io/img/Hard_margain_with_outlier.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/Hard_margain_with_outlier.png" alt="hi" style="zoom:36%;" />
 
 
 
@@ -214,7 +214,7 @@ plt.legend()
 plt.show()
 ```
 
-<img src="/img/decision_boundary_of_soft_svm_c=0.25.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/decision_boundary_of_soft_svm_c=0.25.png" alt="hi" style="zoom:36%;" />
 
 ​	In plots above, we see that the decision boundary is pretty close to the decision boundary is much more accurate than the Hard Margain SVM perfoms. We also notice that this decision boundary is pretty close to the Hard Margain SVM without outlier, which implies that with this method, we can now dramatically reduce the impact of outliers damaging the accuracy of the decision boundary.
 
