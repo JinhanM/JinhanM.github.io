@@ -6,9 +6,7 @@ A quick glimsp and tutorial of implementing SVM.
 
 ### Why we need SVM? What kind of problem does SVM solves?
 
-​	In data science and machine learning, we always encounter a problem such that we need to find a threshold for spliting the data. For example, suppose we have collected data from 14 different people, 7 obesity, 7 normal, and we plot their weights as shown below.
-
-<img src="/Users/jinhanmei/Desktop/TODO 2020 APRIL/JinhanM.github.io/img/SVM_Split_data_1d.png" alt="alt text" style="zoom:50%;" />
+​	In data science and machine learning, we always encounter a problem such that we need to find a threshold for spliting the data. For example, suppose we have collected data from 14 different people, 7 obesity, 7 normal, and we plot their weights as shown below.<img src="/img/SVM_Split_data_1d.png" alt="hi" style="zoom:50%;" />
 
 ​	Our goal is to **find a threshold, or draw a line**, as a decision boundary, to help us distinguish two different cluster of data. For instance, if the orange line is the threshold, then we would classify the black point as obesed.
 
