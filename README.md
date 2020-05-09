@@ -20,7 +20,7 @@ A quick glimsp and tutorial of implementing SVM.
 
 ​	Now, suppose our data is in the nicest scenario, that the data can be seperated into two distinct sets, with no overlaping. We can apply Hard Margain SVM.
 
-<img src="/img/Figure_1.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/Figure_1.png" alt="hi" style="zoom:36%;" />
 
 ​	Just like shown in the Plot, we see that blue points and green points are clustered and without any overlapping. 
 
@@ -37,11 +37,11 @@ L2:w^tx+b=-1\\
 $$
 ​	We want L1 to pass through at least one blue points, and L2 to pass through at least one green points. Besides, we want no point between our L1 and L2.
 
-<img src="/img/Figure_2.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/Figure_2.png" alt="hi" style="zoom:36%;" />
 
 ​	Now suppose we have another set of parameters of w and b, we will gain a new decision boundary as below
 
-<img src="/img/Figure_3.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/Figure_3.png" alt="hi" style="zoom:36%;" />
 
 ​	We see that when we change to another decision boundary, like showed in second plot, the distance between L1 and L2 are decreased. 
 
@@ -149,7 +149,7 @@ plt.show()
 
 ​	As a output, you would expect the graph as below.
 
-<img src="/img/hard_margain_SVM_toy_data.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/hard_margain_SVM_toy_data.png" alt="hi" style="zoom:36%;" />
 
 
 
@@ -184,7 +184,7 @@ y_i(w^Tx_i+b)\geq0
 $$
 ​	Thus, this function only punishes points that is not correctly classified, and we call this funcion **"hinge loss"**, as its plots looks like a hinge.
 
-<img src="/img/hinge_loss.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/hinge_loss.png" alt="hi" style="zoom:36%;" />
 
 
 
@@ -499,7 +499,7 @@ def l2_norm_LinearSVM_Dual(X, y, C):
 
 ​	Till now, we finished all the discussion of Linear SVM, we can now seperate data linearly in 2 dimension, or higher dimension. Now we come into a question, how do we make a decision boundary for points that can not be linear seperated. To begin with, lets start with the simplest example, seperating the following datasets.
 
-![alt text](/img/1D_Kernel_SVM_question.png)
+<img src="/img/1D_Kernel_SVM_question.png" alt= "hi">
 
 ​	In the graph above, we can easily see that green points and red points that is clustered, or we can considering a problem such that we need to find out the amount of dosage of a certain medicine, green points representing the correct dosage, while red points representing either the medicine is under dosage or over dosage. Our question is to find the boundary of correct amount of dosage. 
 
@@ -511,7 +511,7 @@ def l2_norm_LinearSVM_Dual(X, y, C):
 
 ​	This sounds like a very good solution, but considering our data goes into 2 dimension, we now can not solve with the problem with the same idea. For example, in the 2D seperation problem below, we would need infintly many axis to help us make a linear SVM, ie x-axis, y-axis, y=$\frac{1}{2}$x, y=$-\frac{1}{2}$x...
 
-<img src="/img/2D_Kernel_SVM_problem.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/2D_Kernel_SVM_problem.png" alt="hi" style="zoom:36%;" />
 
 ​	However, as we may consider in 2D non-linear seperating problem as the idea which we found as not useful as above, we consider to make a projection of the graph into different lines, and try to make a decision boundary on those lines. Now, what if we are considering this problem in another way, like if we want to project all the points into a higher dimensional space, will the points can be linearly seperatable? 
 
@@ -519,7 +519,7 @@ def l2_norm_LinearSVM_Dual(X, y, C):
 
 ​	Now lets go back to the simpliest 1D case.  Considering we are using a function $f(x)=x^2$, projecting each points into a 2D space, then we could find out that we can now seperate all the projected data points linearly, by using Linear SVM we discussed before.
 
-<img src="/img/1D_projection_Kernel.png" alt="alt text" style="zoom:33%;" /> 
+<img src="/img/1D_projection_Kernel.png" alt="hi" style="zoom:33%;" /> 
 
 
 
@@ -579,7 +579,7 @@ $$
 
 ​	Now consider and if consider a kernel with $b=0,d=1$,  then we would have $K(x,y)=x^2y^2$. Intuitionally, this is a mapping that maps the points in 1D from itself to its squared coordinates. The following graph shows a simple mapping of two points on 1D.
 
-<img src="/img/d=2, polynomial.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/d=2, polynomial.png" alt="hi" style="zoom:36%;" />
 
 ​	We see that the distance between these two points increases when we increasing the value of d.
 
@@ -676,7 +676,7 @@ def customized_kernel_svm():
 
 ​	As a result, you might expect the graph as following for the dataset in repo.
 
-<img src="/img/non-linear_SVM_sigma_0.1.png" alt="alt text" style="zoom:36%;" />
+<img src="/img/non-linear_SVM_sigma_0.1.png" alt="hi" style="zoom:36%;" />
 
 
 
