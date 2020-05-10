@@ -168,6 +168,8 @@ Minimize\ \frac{1}{2}||w||^2 + C\sum_{i=1}^{n}\epsilon_i\\
 subject\ to:\ y_i(w^Tx_i+b)\geq1-\epsilon_i,\ where\ \epsilon_i\geq0.
 $$
 
+​	注：在我们的优化问题中，我们的有两个约束，分别是$y_i(w^Tx_i+b)\geq1-\epsilon_i.$ 和 $\epsilon_i\geq0$ 。 如果我们忽略了其中任何一个约束的话，我们都将无法得到正确的解。
+
 
 
 #### 关于软间隔向量机损失函数的讨论
@@ -186,7 +188,7 @@ $$
 
 
 
-#### 软向量机的代码实现
+#### 软向量机原问题(Primal Problem)的代码实现
 
 ```python
 D = X.shape[1]
@@ -214,45 +216,43 @@ plt.show()
 
 <img src="/img/decision_boundary_of_soft_svm_c=0.25.png" alt="hi" style="zoom:36%;" />
 
-​	在上面的图中，我们可以看到我们的决定边界相比与有异常值的硬间隔SVM有了大幅度的提升，并且和最初没有异常值的硬间隔SVM的决定边界很接近，由此可见**软间隔向量机可以大幅降低异常值对模型的伤害。
+​	在上面的图中，我们可以看到我们的决定边界相比与有异常值的硬间隔SVM有了大幅度的提升，并且和最初没有异常值的硬间隔SVM的决定边界很接近，由此可见**软间隔向量机可以大幅降低异常值对模型的损害**。
 
 
 
-#### Do we have another way to approach the optimization problem? Introducing Soft Margain Dual SVM.
+#### 在求解优化问题中，除了原问题的解法，我们是否还有别的解法呢？软间隔向量机对偶问题(Dual Problem).
 
-​	Now we go back and consider the same optimization problem:
+​	现在我们重新回到我们的优化问题中:
 $$
 Minimize\ \frac{1}{2}||w||^2 + C\sum_{i=1}^{n}\epsilon_i\\
 subject\ to:\ y_i(w^Tx_i+b)\geq1-\epsilon_i,\ and\ \epsilon_i\geq0.
 $$
-​	**Note that we have TWO constraints here, missing one of the second one would leads to a missing part of constraint in solving Larange Function. **
+​	我们发现我们的这个优化问题本质上其实是在求给定约束$g(x)$，然后求 $f(x)$ 的最小值。这个问题在数学上也是一个很重要的问题，并且法国数学家拉格朗日给出了**拉格朗日乘数法(Larange Multiplier)**的求解方法。在这里，我们一样可以应用该方法对本问题进行求解，我们称在求解最优化问题时应用**拉格朗日乘数法**的向量机问题为**对偶问题(Dual Problem).**
 
-​	Is there another way to solve this problem? The answer is yes. Minimizing a function $f(x)$, giving a constraint $g(x)$, is a very important problem in math. One of the solving method is Lagrange Multiplier.
+​	
 
+#### 拉格朗日乘数法(Larange Multiplier)
 
-
-#### Larange Mulitplier Method
-
-​	As you may consider what a Larange Muliplier Method is, It is basicly is considering a problem as follows:
+​	我们回忆一下在高数中学到的拉格朗日乘数法：
 $$
 maximizing\ f(x)\\
 subject \ to\ :\ g(x)=0
 $$
-​	We would have a Larange function:
+​	我们会用到一个拉格朗日方程：
 $$
 L(x, y,\lambda)=f(x,y)-\lambda g(x,y)\\
 $$
-​	By solving the system of equation, we would get the optimized x, and y, then we can get the maximized value for $f(x)$.
+​	通过对方程两边求偏导，并且解方程组，我们就可以获得使得 $f(x,y)$ 最大的 x, y的最优解。
 
 
 
-#### Larange Multiplier in Dual SVM.
+#### 拉格朗日乘数法在对偶问题的应用：
 
-​	In our problem, we have our Larange function as below:
+​	让我们回到我们的最优解问题，我们可以得到如下的拉格朗日方程：
 $$
 L = \frac{1}{2}w^Tw+C\sum_{i=1}^{n}\epsilon_i+\sum_{i=1}^{n}\alpha_i(1-\epsilon_i- y_i(w^Tx_i+b))-\sum_{i=1}^{n}\mu_i\epsilon_i
 $$
-​	 Solving our Larange function, we need it fit **KKT condition**, which is 
+​	 在求解拉格朗日方程时，我们需要其偏导等于0，即满足**KKT**条件：
 $$
 \begin{align*}
 & \frac{\partial L}{\partial w}=w+\sum_{i=1}^{n}{\alpha_i}(-y_i)x_i=0\implies w=\sum_{i=1}^{n}{\alpha_iy_ix_i}\\
@@ -262,7 +262,7 @@ $$
 
 \end{align*}
 $$
-​	We obtain three import conclusions by KKT condition, which are:
+​		经过化简，我们可以得到三个重要的结论：
 $$
 \begin{align*}
 & w=\sum_{i=1}^{n}{\alpha_iy_ix_i}\\
@@ -270,7 +270,7 @@ $$
 & C\geq\alpha_i\geq0
 \end{align*}
 $$
-​	As we substitute conclusion we gained from KKT back into the Larange function, we will have:
+​		然后我们将得到的三个结论带回我们的拉格朗日方程，并化简：
 $$
 \begin{align*}
 L&=\frac{1}{2}w^Tw+\sum_{i=1}^{n}\alpha_i(1-y_i(w^Tx_i+b))\\
@@ -279,7 +279,7 @@ L&=\frac{1}{2}w^Tw+\sum_{i=1}^{n}\alpha_i(1-y_i(w^Tx_i+b))\\
 &=-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}{\alpha_i\alpha_jy_iy_jx_i^Tx_j}+\sum_{i=1}^{n}{\alpha_i}
 \end{align*}
 $$
-​	We notice that the Lagrangian function is linear in α, we cannot set the gradient with respect to $\alpha $ to zero. We obtain the following dual optimization problem.
+​	我们注意到我们的拉格朗日方程对 $\alpha$ 来说是线性的，所以我们无法将对 $\alpha$ 的偏导设为0。于是乎，我们就有了以下的一个新的最优解问题：
 $$
 \max_{\alpha}L(\alpha)=-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}{\alpha_i\alpha_jy_iy_jx_i^Tx_j}+\sum_{i=1}^{n}{\alpha_i}\\
 \begin{align*}
@@ -287,13 +287,13 @@ s.t:\ \sum_{i=1}^{n}{\alpha_iy_i}=0\\
 C\geq\alpha_i\geq0
 \end{align*}
 $$
-​	**Till now, we have already constructed all the mathmatic model for the Soft Margain Dual SVM problem.**
+​	**到这里，我们已经把对偶问题又成功转化成为了一个纯数学的最优化问题。**
 
 
 
-#### Implementation of Soft Margain Dual SVM with CVXOPT.
+#### 使用CVXOPT的软间隔向量机的对偶问题的实现.
 
-​	Now we start to implement Soft Dual SVM with CVXOPT. We will use the the function "cvxopt_solvers.qp" in CVXOPT to help us solves the Lagrange function. "qp" solve for a specific function as below:
+​	在CVXOPT包中，有一个叫做"cvxopt_solvers.qp"的方程可以用来解以下问题：
 $$
 minimze\ \frac{1}{2}x^TPx+q^Tx\\
 \begin{align*}
@@ -301,7 +301,7 @@ subject\ to\ Gx\leq h\\
 Ax=b
 \end{align*}
 $$
-​	We now rewrite our function in order to fit the input for "cvxopt_solvers.qp".
+​	我们发现这个方程所求解的函数和约束和我们最终转化的拉格朗日方程非常相似，我们可以通过改写我们的拉格朗日方程来符合本方程的输入，从而解得 $L(\alpha)$ 的最大值。改写过程如下：
 $$
 \begin{align*}
 L(\alpha)&=
@@ -382,21 +382,27 @@ def LinearSVM_Dual(X, y, C):
     sol_time = time.time() - start_time
     w = ((y * alphas).T @ X).reshape(-1, 1)
 
-    # Selecting the set of indices S corresponding to non zero parameters
+    # 我们选择一个合适的S的阈值，来矩阵中对小于阈值的数进行清零
     S = (alphas > 1e-4).flatten()
 
-    # Computing b
+    # 计算b的值
     b = y[S] - np.dot(X[S], w)
     b = b[0]
 
-    # Display results
+    # 画出决定边界
     x = np.linspace(-1, 5, 20)
     plt.plot(x, (-b - (w[0] * x)) / w[1], 'm')
     plt.show()
     return w, b
 ```
 
-##### 	Till here, we have already discussed the _Hard Margain SVM_, _Soft Margain SVM Primal(L1 regularzation)_, and _Soft Margain SVM Dual_. Now we are going to discuss about the SVM L2 regularzation problem.
+​	我们画出的图与解出的 $w, b$ 的值应该与原问题 (Primal Problem) 中相同，因为他们求的最优值问题相同，只是解法不同，故在此我们就不再此演示结果了。
+
+
+
+
+
+##### 		**至此**，我们已经对SVM的几个重要的问题(硬间隔，软间隔(L1正则)的原问题和对偶问题)进行了讨论和实现，接下来我们会讨论一种不是很常见的软间隔(L2正则)问题。该问题更多在学习SVM的时候出现，我们对此做一个简单的介绍和讨论。如果不是写作业遇到了这个问题不会写，可以直接跳过本段。
 
 
 
