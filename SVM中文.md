@@ -1,55 +1,54 @@
-## Support Vector Machine with L1, L2 regularzation, and Customized Kernel
+## SVM 支持向量机：硬间隔、软间隔、L1正则、L2正则以及核方法的讨论及代码实现
 
-A quick glimsp and tutorial of implementing SVM. 
-
-
-
-### Why we need SVM? What kind of problem does SVM solves?
-
-​	In data science and machine learning, we always encounter a problem such that we need to find a threshold for spliting the data. For example, suppose we have collected data from 14 different people, 7 obesity, 7 normal, and we plot their weights as shown below.<img src="/img/SVM_Split_data_1d.png" alt="hi" style="zoom:50%;" />
-
-​	Our goal is to **find a threshold, or draw a line**, as a decision boundary, to help us distinguish two different cluster of data. For instance, if the orange line is the threshold, then we would classify the black point as obesed.
-
-​	As the threshold can be placed anywhere between the green points and orange points, our goal not is to see if we can **optimize threshold**.
-
-​	**Now we reach the core of SVM.**
+对SVM问题的一瞥
 
 
 
-## Solving the simplest problem, Hard Margain SVM
+### SVM他是用来解决哪类问题的?我们为什么需要SVM？
 
-​	Now, suppose our data is in the nicest scenario, that the data can be seperated into two distinct sets, with no overlaping. We can apply Hard Margain SVM.
+​	在人工智能和大数据分析的学科中，我们经常需要把数据进行进行分类，亦或是需要在数据之间找到一个最合适的分界线，来决定两类数据。举例来说，假如说我们收集了14个人的BMI值进行分析，我们希望在数据中间**找到最合适的一个的值**，**并以此为界来判断一个人是否肥胖**。假定我们收集的数据如图：
+
+<img src="/img/SVM_Split_data_1d.png" alt="hi" style="zoom:50%;" />
+
+​	假如说我们寻找到的**决定边界(decision boundary)**是上图中所示橙线，那么所有在橙线右边的点我们都可以认定为”肥胖“，所有在橙线左侧的点我们都可以认定为”正常“。假如说我们收集到了一个新的数据并把它标记成为黑点，我们发现黑点在橙线右侧，由此我们推论出这个人是”肥胖“的。
+
+​	**当我们考虑如何去放置这个橙色的线的时候，我们发现其实他只要放在绿点和橙点的中间，在任意位置都是可以的。那么是否存在一个最适合的橙色的线呢？或者说我们该如何去寻找一个最合适的“界”呢？**
+
+​	**这便是SVM算法真正的核心所在**。
+
+
+
+### 从最简单问题入手：硬间隔向量机(Hard Margain SVM)
+
+​	假设，我们的数据集是两堆完全**没有重合**的点，并且**线性可分**，那么这个时候我们就可以用最简单的**硬间隔向量机(Hard Margain SVM)**解决此类问题。假如我们的数据如下图所示：
 
 <img src="/img/Figure_1.png" alt="hi" style="zoom:36%;" />
 
-​	Just like shown in the Plot, we see that blue points and green points are clustered and without any overlapping. 
+​	那么现在我们的问题来了，对于这种情况我们该如何分离两类点并且找到最优的解呢？
 
-​	Now we are wondering **how do we sperate it**? 
-
-​	Suppose we are drawing a line as our decision boundary L:
+​	假设我们现在定义一条线 $ L $ 作为我们的决定边界：
 $$
 L: w^tx+b = 0
 $$
-​	and we also find two lines that is parrallel to the decision boundary L, L1 and L2 such that:
+​	我们同时定义两条平行于 $L$ 的线，$L1, L2$ 使得 $L1$ 经过到 $L$ 最近的蓝点，并且$L2$ 经过到 $L$ 最近的绿点。我们称为 $L1, L2$ 为我们的**支持向量(Support Vector)**
 $$
 L1:w^tx+b=1\\
 L2:w^tx+b=-1\\
 $$
-​	We want L1 to pass through at least one blue points, and L2 to pass through at least one green points. Besides, we want no point between our L1 and L2.
+​	现在我们尝试一些不同的 $L$, 然后进行观察：	
 
 <img src="/img/Figure_2.png" alt="hi" style="zoom:36%;" />
 
-​	Now suppose we have another set of parameters of w and b, we will gain a new decision boundary as below
+​	假设我们现在用第一组$w, b$, 获得了第一个决定边界如上图
 
 <img src="/img/Figure_3.png" alt="hi" style="zoom:36%;" />
 
-​	We see that when we change to another decision boundary, like showed in second plot, the distance between L1 and L2 are decreased. 
+​	我们现在尝试变动一下我们的$w, b$的值，我们获得了第二个决定边界。通过观察我们发现**当$L1, L2$之间的距离越大的时候，我们的两类点被决策边界分的越开，我们的决策边界也就越趋近于最优解**
 
-​	Our question now specify to **find a set of L1, L2 that make the distance between L1 L2 the greatest.**
+​	**换言之，我们将寻找“界”的问题变成了一个寻找$L1,L2$距离最大值的数学问题**
 
-​	**Note that our goal is equvalent to find a set of L and L1, such that the distance between L and L1 is the largest.**
+​	我们注意到 $L$ 到 $L1$ 与 $L2$ 的距离相等，也就是说我们可以转化我们的问题为“寻找$L,L1$最大距离的问题”，即：
 
-​	This turns to:
 $$
 \begin{align*}
 \max{|L\ L1|}&=\max{\frac{|w^Tx+b|}{||w||}}\\
@@ -57,42 +56,38 @@ $$
 &=min{||w||}
 \end{align*}
 $$
-​	Besides, we have constraint such that 
+​	同时，我们对这个最值问题也有约束(constraint), 我们需要用这个约束把所有的蓝点($y_i=1$), 和绿点($y_i=-1$)分开。即：
 $$
 w^Tx_i+b\geq+1, when\ y_i=+1\\
 w^Tx_i+b\leq-1, when\ y_i=-1\\
 $$
-​	To simplify ourconstraint, we can get as below: 
+​	化简可得：
 $$
 y_i(w^Tx_i)\geq1
 $$
-​	Note that it is a little bit tricky, but easy to see when you try it.
+​	注: 化简的过程其实很简单，但第一次想可能还是会有些困惑，不妨带几个数就可以想明白。
 
 
 
-​	**Since we change the problem into a pure mathmatic optimization problem, now we can start our implementation of SVM using CVXPY.**
+​	**到这一步，我们把这个寻找界的问题已经化简成为了一个在约束内寻找最值的纯数学问题，而这类问题可以被Python CVXPY包内的函数所解，也就是我们现在可以上手尝试代码实现我们的SVM了。**
 
 
 
 
 
-## Implementation of Hard Margain SVM using CVXPY
+### 硬间隔SVM的代码实现
 
-#### 	
+#### 		数据定义
 
-#### 	Defination of data
+​			在我们开始正式进行我们的代码实现前，我们需要先明确我们的数据输入。我们数据为X和y，其中X是一个numpy.ndarray, X中包含了所有点的坐标；y是一个list，其中用1和-1来区分对应X中每个点类的分类，1位蓝点，-1位绿点。
 
-​		Our data has two inputs, X and y. X is a np.ndarray of shape (n,2), which contains all the points' coodinates; y is a list of length n, which contains the type of the corresponding coordinates in X, 1 for type A, and -1 for type B.
-
-
-
-​		Now we create our toy data for Hard Margain SVM.
+​			我们现在开始为我们的硬间隔SVM生成一个玩具集:
 
 ```python
 import numpy as np
 np.random.seed(5)
 
-# First we get two different cluster of points, 40 points each, centered as (3,3) and (-3,-3)
+# 我们先生成以(3,3) 和 (-3,-3)为中心各生成40个坐标
 x1 = np.random.normal(3, 1, (2, 40))
 x2 = np.random.normal(-3, 1, (2, 40))
 plt.scatter(x1[0, :], x1[1, :], color='blue')
@@ -106,20 +101,20 @@ def join_data(dat1, dat2):
         lst.append([dat2[0][j], dat2[1][j]])
     return np.asarray(lst)
 
-# Then we join the data into the designated format.
+# 然后我们把生成好的坐标化为我们所需的标准输入格式
 X = join_data(x1, x2)
 y = [1] * len(x1[0]) + [-1] * len(x2[0])
 ```
 
 
 
-#### Implmentation of Hard Margain SVM
+#### 编写硬间隔SVM
 
-​	Recall that we turn the Hard Margain SVM into a math optimization problem, such that
+​	经过我们上面的讨论，我们最后把硬间隔SVM化成了以下问题：
 $$
 min{||w||},\ with:\ y_i(w^Tx_i)\geq1
 $$
-​	With CVXPY, the problem is showed as below.
+​	在使用CVXPY包的情况下，这个问题可以被转化成：
 
 ```python
 import cvxpy as cp
@@ -130,65 +125,68 @@ N = X.shape[0]
 W = cp.Variable(D)
 b = cp.Variable()
 
-# Calculate the loss, and constraint of the problem.
+# 计算损失函数loss还有约束constraint。
 loss = cp.sum_squares(W)
 constraint = [y[i]*(X[i]*W+b) >= 1 for i in range(len(y))]
 prob = cp.Problem(cp.Minimize(loss), constraint)
 prob.solve()
 
-# Get the value of w and b.
+# 转换w和b的值
 w = W.value
 b = b.value
 
-# Plot the decision boundary.
+# 画出决定边界
 x = np.linspace(-4, 4, 20)
 plt.plot(x, (-b - (w[0] * x)) / w[1], 'r', label="decision boundary for hard SVM")
 plt.legend()
 plt.show()
 ```
 
-​	As a output, you would expect the graph as below.
+​	经过以上代码，你应该可以得到一个如下图的决定边界。
 
 <img src="/img/hard_margain_SVM_toy_data.png" alt="hi" style="zoom:36%;" />
 
 
 
-#### Problem of Hard Margain SVM: What if the data is not so nicely clustered? or what if with some mineral overlapping?
+#### 硬间隔SVM的局限：假如数据有异常值，或者两组点有重合或者略微的相交？
 
-​	In Hard Margain SVM, we are making a decision boundary that correctly classify every point. This seems like classify the data very precisely, but **Hard Margain SVM is very sensitve to outliers**. For example, if we add one outlier into our data, and we run Hard Margain SVM again, the decision boundary would be dramaticly influenced by the outlier, and be not accurate anymore.
+​	在硬间隔SVM中，我们的决策边界把所有的点都**完全正确**的分开，虽然这个方法能很“准确”的分开所有的点，但是该方法**对异常值会非常敏感**。举例来说，假如我们在我们的玩具数据中加入一个异常值，并再用硬间隔SVM对两类点进行区分，那么我们得到的决策边界(如下图)将**有悖于常识**的认知。
 
 <img src="/img/Hard_margain_with_outlier.png" alt="hi" style="zoom:36%;" />
 
 
 
-#### A solution: Soft Margain SVM Primal
+#### 对硬间隔支持向量机缺陷的弥补：软间隔支持向量机或L1正则支持向量机(Soft Margin SVM or L1 regularzation SVM)
 
-​	We see this plot perfectly demonstrated how outlier influenced the decision boundary. Now we are considering how can we lower the influence of the outlier. **A solution is that we allow some points to be missclassified**. We now remove the contraint that make sure every point is correctly classified, and now maximizing the distance between two support vector and penalize on the points that is missclassified with a coeffecient C. When C is large, the algorithm penalize more on points that is missclassified, allowing more points to be correctly classified, when C is small, the algorithm penalize less on the points that is missclassified, making potentially more points to be missclassified. **This method is what we called Primal Soft Margain SVM, or L1 regularized SVM.**
+​	我们在之前的图像中很好的感受到了异常值会如何影响我们的硬间隔SVM，那么我们现在就要考虑该如何解决异常值，或者是有重合的点对硬间隔SVM的影响。当我们重新考虑上图中我们的决定边界该如何定义时，我们发现最优的决定边界理应还是忽略唯一的异常值的硬间隔SVM的决策边界。于是，我们可以设计一种方法，**使其允许一些点被错误的标记，并在损失函数中对其进行惩罚，以至于达到一个相对的平衡**。假设我们对标记错误的点进行 C 倍的惩罚，当C  变小时，我们的算法会相对更少地惩罚错误标记的点，意味着可能会有更多的点被错误的标记；当C 变大时，我们的算法会更多地惩罚错误标记的点，意味着可能会有更少的点被错误标记；当 C 足够大之后，我们的算法得到的决定边界会和硬间隔SVM得到的决定边界一样。我们将这种允许错误标记点的算法称为**软间隔支持向量机(Soft Margain SVM)**。
 
-​	Mathmatically, we turned this problem into optimization question as following:
+
+
+​	在数学上，我们可以将以上的思想转化成为以下的最优化问题：
 $$
 Minimize\ \frac{1}{2}||w||^2 + C\sum_{i=1}^{n}\epsilon_i\\
 subject\ to:\ y_i(w^Tx_i+b)\geq1-\epsilon_i,\ where\ \epsilon_i\geq0.
 $$
 
 
-#### A small discussion on loss function
 
-​	Note here we only want to punish the points that is misclassified, so we defining the loss as following:
+#### 关于软间隔向量机损失函数的讨论
+
+​	我们注意到在上面相较于硬间隔向量机，软间隔向量机增加了一项$C\sum_{i=1}^{n}\epsilon_i$， 其中我们对于 $\epsilon$ 的定义如下：
 $$
 \epsilon_i=\max\{0,1-y_i(w^Tx_i+b)\}
 $$
-​	Since the correctly classified point has:
+​	我们注意到，凡是被正确分类的点，我们都会有：
 $$
 y_i(w^Tx_i+b)\geq0
 $$
-​	Thus, this function only punishes points that is not correctly classified, and we call this funcion **"hinge loss"**, as its plots looks like a hinge.
+​	于是乎，我们就得到了一个关于 $\epsilon $ 的特别的损失方程，这个损失方程的特点在于它只会惩罚被错误分类了的点，并且它的图像看起来很像一个铰链(hinge)，于是乎我们称之为**"hinge loss"**.
 
 <img src="/img/hinge_loss.png" alt="hi" style="zoom:36%;" />
 
 
 
-#### Implementation of Primal Soft Margain SVM.
+#### 软向量机的代码实现
 
 ```python
 D = X.shape[1]
@@ -196,18 +194,18 @@ N = X.shape[0]
 W = cp.Variable(D)
 b = cp.Variable()
 
-# We use C = 1/4 here.
+# 在这里我们使用 C = 1/4
 C = 1/4
 loss = (0.5 * cp.sum_squares(W) + C * cp.sum(cp.pos(1 - cp.multiply(y, X * W + b))))
-# Note that we change the loss function and remove the constraints here.
+# 在这里我们改变了损失函数，并且移除了对w和b的约束
 prob = cp.Problem(cp.Minimize(loss))
 prob.solve()
 
-# Get the value of w and b.
+# 转换w和b的值
 w = W.value
 b = b.value
 
-# Plot the decision boundary.
+# 画出决定边界
 x = np.linspace(-4, 4, 20)
 plt.plot(x, (-b - ((w[0]) * x)) / w[1], 'r', label="decision boundary for Soft Margain SVM")
 plt.legend()
@@ -216,7 +214,7 @@ plt.show()
 
 <img src="/img/decision_boundary_of_soft_svm_c=0.25.png" alt="hi" style="zoom:36%;" />
 
-​	In plots above, we see that the decision boundary is pretty close to the decision boundary is much more accurate than the Hard Margain SVM perfoms. We also notice that this decision boundary is pretty close to the Hard Margain SVM without outlier, which implies that with this method, we can now dramatically reduce the impact of outliers damaging the accuracy of the decision boundary.
+​	在上面的图中，我们可以看到我们的决定边界相比与有异常值的硬间隔SVM有了大幅度的提升，并且和最初没有异常值的硬间隔SVM的决定边界很接近，由此可见**软间隔向量机可以大幅降低异常值对模型的伤害。
 
 
 
