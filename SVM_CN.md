@@ -6,7 +6,7 @@
 
 ### SVM他是用来解决哪类问题的?我们为什么需要SVM？
 
-​	在人工智能和大数据分析的学科中，我们经常需要把数据进行进行分类，亦或是需要在数据之间找到一个最合适的分界线，来决定两类数据。举例来说，假如说我们收集了14个人的BMI值进行分析，我们希望在数据中间**找到最合适的一个的值**，**并以此为界来判断一个人是否肥胖**。假定我们收集的数据如图：
+​	在人工智能和大数据分析的学科中，我们经常需要把数据进行进行分类，亦或是需要在数据之间找到一个最合适的**分界线**，来分类两类数据。举例来说，假如说我们收集了14个人的BMI值进行分析，我们希望在数据中间**找到最合适的一个的值**，**并以此为界来判断一个人是否肥胖**。假定我们收集的数据如图：
 
 <img src="/img/SVM_Split_data_1d.png" alt="hi" style="zoom:50%;" />
 
@@ -503,7 +503,7 @@ def l2_norm_LinearSVM_Dual(X, y, C):
 
 
 
-### 我们解决了所有线性可分的问题，那如果数据线性不可分呢？支持向量机的核方法
+#### 我们解决了所有线性可分的问题，那如果数据线性不可分呢？支持向量机的核方法
 
 ​	在我们继续讨论更多的支持向量机的之前，我们回归初心，一起整理一下我们是如何一步一步走到这里的。首先我们是为了解决“**在不同类别点中寻找一个最优的界限**”而提出的支持向量机的解法。然后我们针对最最简单的数据结构——两类完全线性可分、毫无重合、没有异常值的数据进行分类时提出了“**硬间隔**支持向量机”。然后考虑到该解法的应用场景很有局限性：**无法分离有重合的数据集，并且会极大地受到异常值的影响**，于是乎我们提出了更优的“**软间隔**向量机”的解法。 其中软间隔支持向量机增加了一项对错误标记的点的惩罚，**对于不同的惩罚方式**，我们引出了两种细分算法：**“L1正则软间隔支持向量机，和L2正则软间隔支持向量机“**。接着，我们在针对**求解软间隔向量机的”最优化问题“时**，我们又提出了两种不同的思路：**直接求解的”原问题“，和使用拉格朗日乘数法的”对偶问题“。**
 
@@ -545,13 +545,13 @@ def l2_norm_LinearSVM_Dual(X, y, C):
 
 
 
-​		很巧，**这就是核问题中使用高斯核的意义。**
+​		寻找最佳的 $f(x)$ 的问题**的答案在于使用高斯核。**
 
 
 
-### The Math behind Customized Kernel SVM
+#### 核方法与对偶问题
 
-​	Recall that in Dual Soft Margain L1 SVM problem, we are maxmizing the larangian function:
+​		我们在L1正则软间隔支持向量机中探讨了以下的最优解问题：
 $$
 \max_{\alpha}L(\alpha)=-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}{\alpha_i\alpha_jy_iy_jx_i^Tx_j}+\sum_{i=1}^{n}{\alpha_i}\\
 \begin{align*}
@@ -559,7 +559,7 @@ s.t:\ \sum_{i=1}^{n}{\alpha_iy_i}=0\\
 C\geq\alpha_i\geq0
 \end{align*}
 $$
-​	Now, in Kernel SVM, we are going to maximizing the Larangian function:
+​		在核方法中，我们将优化的问题转化成为了以下问题：
 $$
 \max_{\alpha}L(\alpha)=-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}{\alpha_i\alpha_jy_iy_j\phi(x_i)^T\phi(x_j)}+\sum_{i=1}^{n}{\alpha_i}\\
 \begin{align*}
@@ -567,66 +567,78 @@ s.t:\ \sum_{i=1}^{n}{\alpha_iy_i}=0\\
 C\geq\alpha_i\geq0
 \end{align*}
 $$
-​	Where here we take $\phi (x)$ as our projection function, and inner product of $\phi(x_i)^T\phi(x_j)$ as our **Kernel function** $K(x_i, x_j)$.
+​	 	我们注意到在核方法中，我们将原本的 $x$ 替换成了 $\phi (x)$，其中$\phi(x)$在这里作为我们的映射方程。$\phi(x_i)^T\phi(x_j)$的向量积则称为我们的**核方程(Kernel function)** $K(x_i, x_j)$.
 
 
 
-### Kernel functions in SVM
+#### 核方法中不同的核方程
 
-​	As we may consider, what are the kernel functions in SVM, and here we will have some examples. 
-
-​	Firstly, we will have a **polynomial kernel** function, defining as: $K(x^Ty+b)^d$. Then we have a **Radial basis function kernel** with $\sigma$ :$K(x,y)=tanh(kx^Ty+\theta)$,  and **Sigmod Kernel** with parameter $k, and\ \theta$ : $K(x, y)=tanh(kx^Ty+\theta)$. Most importantly, we have the **Gaussian Kernel**, or kwon as "RBF", is defined as:$K(x, y)= e^{-\gamma||x-y||^2}$
+​		在经过一些对核方法有一些了解后，我们现在的目标转为了对核方程(Kernel function)的选择上。那么在这里，我们将介绍一些常见的核方程。
 
 
 
-### Gaussian Kernel
-
-​	Here we will focus discussing the **Gaussian Kernel**. We will discuss Gauassian Kernel in 3 parts: firstly, we will focus **why** we are choosing Gaussian Kernel to help us do non-linear seperation, and how it can reflect the original data into infinite dimensions? Second part we will focus how do **implement the Gassian Kernel**. The Third part, we will focus on how to **use the Gaussian Kerel in our SVM**, and **plot the decision boundary**, using sklearn.
+​		其中有**多项核 polynomial kernel**,  $K(x^Ty+b)^d$. 同时还有关于 $\theta$ 的**Radial basis function kernel**:$K(x,y)=tanh(kx^Ty+\theta)$。其中最重要的，我们还有**高斯核 Gaussian Kernel**，同时也叫“RBF”， 他的定义是：$K(x, y)= e^{-\gamma||x-y||^2}$。
 
 
 
-***NOTE: If you are not learning this in your machine learning course, or you are not highly interested in how it works, you can skip part1 and part2, part 3 is enough for practical usage. Part 1 and Part 2 will focus on the Math reasoning behind the algorithm. 
+
+
+#### 为什么高斯核区分线性不可分的数据时最好用？高斯核背后美丽的数学原理与代码实现
+
+​		在此，我们将着重讨论一下在区分线性不可分的数据时表现最好的高斯核。我们对高斯核的讨论将分为三个部分。**第一部分**：我们将着重讨论高斯核背后美丽的数学原理；**第二部分**：我们将讨论如何代码实现高斯核；**第三部分**：我们将着重讨论如何在我们的支持向量机中使用高斯核，并且画出我们的非线性决策边界。
 
 
 
-##### Part 1. Why Gaussian Kernel perform the best in seperating non-linear data?
+***注：如果你不是对这个算法的名称或者原理极为好奇，亦或是机器学习的课程中学到这个算法，需要对它有一个比较深的理解，那么你可以直接跳过前两部分，前两部分旨在解析高斯核的数学原理，与实际应用并无关联。
 
-​	Recall in our polynomial kernel, $K(x,y)=(x^Ty+b)^d$.
 
-​	Consider in the kernel problem, we let $b=0, d=1$, we would have $K(x, y)=x^1y^1$. Intuitionally, this is a mapping that map the points in 1D from itself to itself, without changing anything.
 
-​	Now consider and if consider a kernel with $b=0,d=1$,  then we would have $K(x,y)=x^2y^2$. Intuitionally, this is a mapping that maps the points in 1D from itself to its squared coordinates. The following graph shows a simple mapping of two points on 1D.
+##### 第一部分.为什么高斯核在区分线性不可分的数据时最好用？
+
+​		首先我们对最基础的Polynomial Kernel $K(x,y)=(x^Ty+b)^d$ 的一些性质进行讨论。
+
+
+
+​		假定我们现在从基础的Polynomial Kernel出发：令 $b=0, d=1$, 那么我们将会得到核方程 $K(x, y)=x^1y^1$。我们可以发现这个其实是一个一维到一维的映射，把点的坐标映射到自己。或者说：假定有一点X在数轴上的坐标为2，那么经过映射后他的坐标还是2。
+
+
+
+​		那么我们现在令 $b=0,d=2$,  那么我们将会得到核方程 $K(x,y)=x^2y^2$. 我们发现这个其实依旧是一个一维到一维的映射，他把每个点映射到坐标平方的点。或者说：假定有一点X在数轴上的坐标为2，那么经过映射后他的坐标将会变到4。
 
 <img src="/img/d=2, polynomial.png" alt="hi" style="zoom:36%;" />
 
-​	We see that the distance between these two points increases when we increasing the value of d.
-
-​	
-
-​	Now we know the method to increase the distance between points, but we still considering the question in 1D. Consider adding two kernels together, such that $K(x,y)= (x^Ty+0)^1+(x^Ty+0)^2=x^1y^1+x^2y^2$ , we see the result of such kernel is equal to $K(x,y)=(a,a^2)\cdot(b, b^2)$. This is a $\R^1 \implies \R^2$kernel, where the first coordinate is the original coordinate, and the second coordinate is the $y$ coordinate. This will be the mapping we mentioned before, to help us seperate the data in higher dimension.
+​		上图展示了在一维空间上两个点关于 $K(x,y)=x^2y^2$ 的映射。我们可以发现，经过了$K(x,y)=x^2y^2$的映射后，点与点之间的距离得到了增加，也就意味着**经过一次平方的变换，曾经很密的点可能会变得稀松**，换言之，变换过后的点可能会更便于分离。
 
 
 
-​	Since we see that with larger d, the distance between original data are increased, so if we can map our toy 1D data into a infinite nD space, we may can find a $(n-1)D$ hyperplane to help us separate the data. Then our kernel would be :
+​		我们发现无论我们怎么调整d的值，我们的映射依旧是从一维到一维的，即：$\R^1 \implies \R^1$。当我们尝试把两个核方程加到一起的时候，例如： $K(x,y)= (x^Ty+0)^1+(x^Ty+0)^2=x^1y^1+x^2y^2$ 时，我们发现这个核方程是可以写成点乘： $K(x,y)=(a,a^2)\cdot(b, b^2)$，这就升级成为了一个从一维到二维的映射，即 $\R^1 \implies \R^2$。在这个映射之后的X坐标还是我们 $K(x, y)=x^1y^1$ 的映射，而新增的Y坐标则是 $K(x,y)=x^2y^2$ 的映射。
+
+​		
+
+​		我们在前面发现了我们可以通过更高次项的Polynomial Kernel增加我们数据点和点之间的距离。同时假如我们的把我们的数据映射到更高维的空间，我们就可能可以在更高的维的空间对映射点做线性的分离。那如果我们把我们的数据映射到一个无限高维的 n维空间呢？我们也许可以寻找一个$(n-1)$维的超平面对映射的点进行线性分离。换言之，**任何维度无法线性可分的数据，在映射到一个无限高维的n维空间之后也许都可以找到一个(n-1)维的超平面进行线性分离，从而解决非线性可分的问题。** 
+
+
+
+​		那么我们假设我们现在的核方程是由 $d=1,2,\dots, n$ 不同的Polynomial Kernel相加而成，即：
 $$
 K(x,y)= a^1b^1+a^2b^2+a^3b^3+\dots+a^\infin b^\infin=(a,a^2,a^3,\dots,a^\infin)\cdot(b,b^2,b^3,\dots,b^{\infin})
 $$
-​	Recall that our Gaussian kernel function is: $e^{-\gamma||x-y||^2}$, and the **Taylor expansion** of $e^x$ is:
+​		我们尝试一下从另一个角度出发，首先我们先回忆一下 $e^x$ 的泰勒展开:
 $$
 e^{x}=e^a+\frac{e^a}{1!}(x-a)+\frac{e^a}{2!}(x-a)^2+\frac{e^a}{3!}(x-a)^3+\dots+\frac{e^a}{\infin!}(x-a)^\infin
 $$
-​	Expand the series at a=0, we have:
+​		当我们在 $a=0$ 的时候进行泰勒展开，我们有：
 $$
 e^{x}=1+\frac{1}{1!}x+\frac{1}{2!}x^2+\frac{1}{3!}x^3+\dots+\frac{1}{\infin!}x^\infin
 $$
-​	We notice that we can rewrite this into:
+​		我们发现这个泰勒展开可以重写成：
 $$
 \begin{align*}
 e^{ab}&=1+\frac{1}{1!}ab+\frac{1}{2!}a^2b^2+\frac{1}{3!}a^3b^3+\dots+\frac{1}{\infin!}a^\infin b^\infin\\
 &=(1,\sqrt{\frac{1}{1!}}a,\sqrt{\frac{1}{2!}}a^2,\sqrt{\frac{1}{3!}}a^3,\dots,\sqrt{\frac{1}{\infin!}}a^\infin)\cdot(1,\sqrt{\frac{1}{1!}}b,\sqrt{\frac{1}{2!}}b^2,\sqrt{\frac{1}{3!}}b^3,\dots,\sqrt{\frac{1}{\infin!}}b^\infin)
 \end{align*}
 $$
-​	If we add one more constant $s=\sqrt{e^{-\frac{1}{2}(a^2+b^2)}}$into each term in dot product, we have:
+​		假如我们定义一个常数项 $s=\sqrt{e^{-\frac{1}{2}(a^2+b^2)}}$， 并把它带入上面的泰勒展开中，我们可以获得:
 $$
 \begin{align*}
 e^{-\frac{1}{2}(a-b)^2}&= e^{-\frac{1}{2}(a^2+b^2)}\cdot e^{ab} \\
@@ -634,13 +646,19 @@ e^{-\frac{1}{2}(a-b)^2}&= e^{-\frac{1}{2}(a^2+b^2)}\cdot e^{ab} \\
 &= (s,\sqrt{\frac{1}{1!}}a s,\sqrt{\frac{1}{2!}}a^2 s,\sqrt{\frac{1}{3!}}a^3 s,\dots,\sqrt{\frac{1}{\infin!}}a^\infin s)\cdot(s,\sqrt{\frac{1}{1!}}b s,\sqrt{\frac{1}{2!}}b^2 s,\sqrt{\frac{1}{3!}}b^3 s,\dots,\sqrt{\frac{1}{\infin!}}b^\infin s)
 \end{align*}
 $$
-​	Thus, we found that our Gaussian Kernel, or "RBF" is actually a mapping to $\R^\infin$, and that is the reason "RBF" is Math behind why Gaussian Kernel is good for seperate non-linear data.
+​	
+
+​		**我们很惊奇的发现，我们的高斯核竟然可以展开成为一个到无穷高的 n维空间 ($\R^\infin$) 的映射, 也就说我们就可以通过高斯核进行我们理想中的在无穷高维空间寻找映射后的点线性可分的超平面了。**
 
 
 
-#####  Part 2: How do we implement the Gaussian Kernel?
+​		**不得不感叹，虽然很多数学学不会，但是他是真的很美丽！**
 
-​	To implement the Kernel by hand, we will have:
+
+
+#####  第二部分：代码实现高斯核
+
+​		手动实现高斯核，我们有：
 
 ```python
 def gaussianKernel(X1, X2, sigma=0.1):
@@ -655,7 +673,7 @@ def gaussianKernel(X1, X2, sigma=0.1):
 
 
 
-##### Using the Gaussian Kernel in SVM to seperate non-linear data.
+##### 第三部分：高斯核在支持向量机中的应用。
 
 ```python
 import pandas as pd
@@ -664,14 +682,15 @@ data2 = pd.read_csv('prob2data.csv', header=None).values
 X = data2[:, 0:2]
 y = data2[:, -1]
 
-# Invert the data
+# 首先把数据变成符合要求的
 for i in range(len(y)):
     if y[i] != 1:
         y[i] = -1
 
 def customized_kernel_svm():
-    # Note here we are using "rbf" as our customized gaussian kernel.
-    # Also note that we would have gamma = 1/2 sigma as we condsidering a sigma in our Gaussian Kernel.
+    # 在这里我们使用 “rbf” 核作为我们的高斯核
+    # 我们在这里使用的是gamma，而不是在实现高斯核中的 sigma。 其中我们可以通过 gamma = 1/2 sigma 来计算和转化sigma到gamma。
+    
     clf = SVC(kernel="rbf", gamma=20, C=1)
     X, y = X_train, y_train
     clf.fit(X, y)
@@ -680,11 +699,11 @@ def customized_kernel_svm():
     x2s = np.linspace(min(X[:, 1]), max(X[:, 1]), 600)
     points = np.array([[x1, x2] for x1 in x1s for x2 in x2s])
 
-    # Compute decision function for each point, keep those which are close to the boundary
+    # 计算决策边界
     dist_bias = clf.decision_function(points)
     bounds_bias = np.array([pt for pt, dist in zip(points, dist_bias) if abs(dist) < 0.05])
 
-    # Visualize the decision boundary
+    # 画出决策边界
     plt.scatter(X[:, 0], X[:, 1], color=["r" if y_point == -1 else "b" for y_point in y], label="data")
     plt.scatter(bounds_bias[:, 0], bounds_bias[:, 1], color="g", s=0.5, label="decision boundary")
     plt.show()
@@ -692,15 +711,21 @@ def customized_kernel_svm():
 
 
 
-​	As a result, you might expect the graph as following for the dataset in repo.
+​		作为结果，你应该可以预计如下的图像。
 
 <img src="/img/non-linear_SVM_sigma_0.1.png" alt="hi" style="zoom:36%;" />
 
 
 
-​	Congratulations my friend, you have learnt all the Math and implementation of different kinds of SVM. Hope this helps you and have a good time using SVM in your own project! Cheers!
 
 
+## 结语
+
+​		好的，当你看到这里的时候，恭喜你已经对“在数据中寻找合适的界限”这个问题，亦或是“支持向量机”有了一个很深入的理解了！恭喜！
+
+​		希望你可以开始上手做一做属于自己模型，并希望你在未来可以得心应手的解决此类问题。
+
+​		加油！
 
 
 
