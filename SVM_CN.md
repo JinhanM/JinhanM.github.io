@@ -250,7 +250,7 @@ $$
 
 ​	让我们回到我们的最优解问题，我们可以得到如下的拉格朗日方程：
 $$
-L = \frac{1}{2}w^Tw+C\sum_{i=1}^{n}\epsilon_i+\sum_{i=1}^{n}\alpha_i(1-\epsilon_i- y_i(w^Tx_i+b))-\sum_{i=1}^{n}\mu_i\epsilon_i
+L(\alpha) = \frac{1}{2}w^Tw+C\sum_{i=1}^{n}\epsilon_i+\sum_{i=1}^{n}\alpha_i(1-\epsilon_i- y_i(w^Tx_i+b))-\sum_{i=1}^{n}\mu_i\epsilon_i
 $$
 ​	 在求解拉格朗日方程时，我们需要其偏导等于0，即满足**KKT**条件：
 $$
@@ -402,34 +402,34 @@ def LinearSVM_Dual(X, y, C):
 
 
 
-##### 		**至此**，我们已经对SVM的几个重要的问题(硬间隔，软间隔(L1正则)的原问题和对偶问题)进行了讨论和实现，接下来我们会讨论一种不是很常见的软间隔(L2正则)问题。该问题更多在学习SVM的时候出现，我们对此做一个简单的介绍和讨论。如果不是写作业遇到了这个问题不会写，可以直接跳过本段。
+​	**至此，我们已经对SVM的几个重要的问题(硬间隔，软间隔(L1正则)的原问题和对偶问题)进行了讨论和实现，接下来我们会讨论一种不是很常见的软间隔(L2正则)问题。该问题更多在学习SVM的时候出现，我们对此做一个简单的介绍和讨论。如果不是写作业遇到了这个问题不会写，可以直接跳过本段。**
 
 
 
-### SVM with L2 regularzation
+#### 支持向量机的L2正则形式
 
-​	After discussing about the SVM under Soft Margain, or L1 regularzation. We now consider if we can have a SVM model under L2 regularzation. The answer is definetly yes, and now we are going to build a L2 regularzation Primal and Dual model.
+​	我们再次回顾一下我们刚刚建立的软间隔支持向量机，我们发现我们最后一项对标记错误的点的惩罚为： $C\sum_{i=1}^{n}{\epsilon_i}$, 我们发现这个与L1正则中的惩罚相似，因此我们也称其为SVM的软间隔的L1正则。我们可以联想到，我们为了**避免线性回归的过拟合**，我们有**L1正则(Lasso回归 Lasso Regression)和L2正则(岭回归 Rigde Regression)两个武器**。
 
-​	Firstly, we need to construct model, and turn the SVM into a convex optimization problem. Before all, lets recall the difference between L1 regularzation and L2 regularzation.
+​	首先我们先回顾一下L1和L2正则的定义：
 $$
 \begin{align*}
-L1\ reg:\min \frac{1}{2}||w||^2+C\sum_{i=1}^{n}{\epsilon_i}\ such\ that:\ \epsilon_i\geq0\\ 
-L2\ reg:\min \frac{1}{2}||w||^2+\frac{C}{2}\sum_{i=1}^{n}{\epsilon_i^2}\ such\ that:\ \epsilon_i\ngeq0
+L1\ reg&:\min \frac{1}{2}||w||^2+C\sum_{i=1}^{n}{\epsilon_i}\ such\ that:\ \epsilon_i\geq0\\ 
+L2\ reg&:\min \frac{1}{2}||w||^2+\frac{C}{2}\sum_{i=1}^{n}{\epsilon_i^2}\\
 \end{align*}
 $$
-​	As we see, in $l2\ norm\ SVM$, we are minimizing the $\sum_{i=1}^{n}{\epsilon_i^2}$, instead of $\sum_{i=1}^{n}{\epsilon_i}$. This will leads to a different conclusion in KKT condistion, and thus a different Larangian function. 
+​	我们看到L1和L2正则对错误标记的点有不同的惩罚方式，所以在拉格朗日乘数方程中，我们需要满足不一样的KKT条件，从而得到最后不一样的拉格朗日方程的表达式，而**它并不能直接通过粗暴的对以前的拉格朗日方程 $\epsilon$ 项加平方得到，需要重新推导。**
 
 
 
-​	**_Important Note_:** We see we remove the constraint $\epsilon_i \geq 0$ in l2 reg, this is because consider a potential solution to the problem with some$\epsilon_i<0$. Then the constraint would also be fit as $\epsilon_i=0$, and the objective function will be lower in this situation, proving that this could not be an optimial solution. 
+​	***特别注意**：我们发现在L2正则中，我们取消了对 $\epsilon_i$ 的约束。这里很有可能是作业中对此问题进行考察的点。在此我提出我的想法。首先我们是可以取消这个 $\epsilon_i\geq0$ 的约束的，因为假设我们遇到了一个解，其中 $\epsilon_i < 0$, 那么 $\epsilon_i=0$ 也一定可行；并且这个解会使L2的目标方程更小，即，我们可以舍弃 $\epsilon_i \geq 0$ 这和约束。
 
 
 
-​	We now compute the Larangian function for our L2 norm SVM. 
+​	现在我们开始计算我们的L2正则的软间隔SVM的拉格朗日方程： 
 $$
 L(\alpha) =\frac{1}{2}||w||^2+\frac{C}{2}\sum_{i=1}^{n}{\epsilon_i^2}-\sum_{i=1}^{n}{\alpha_i(y_i(w^Tx+b)-1+\epsilon_i)}
 $$
-​	To get the optimal solution the following KKT conditions must be satisfied:
+​	我们同样需要使得我们的拉格朗日方程对各个变量的偏导为0，即，满足KKT条件：
 $$
 \begin{align*}
 & \frac{\part L}{\part w} =w-\sum_{i=1}^{n}\alpha_iy_ix_i=0;\\
@@ -438,7 +438,7 @@ $$
 & \alpha_i(y_i(w^Tx_i+b)-1+\epsilon_i)=0
 \end{align*}\\
 $$
-​	And our objective function will be:
+​	于是乎我们可以得到以下的目标方程：
 $$
 \begin{align*}
 \max_\alpha\ & L(\alpha)=\sum_{i=1}^{n}\alpha_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n}{\alpha_i\alpha_jy_iy_jx_i^Tx_j}-\frac{1}{2}\sum_{i=1}^{n}\frac{\alpha_i^2}{C}\\
@@ -446,7 +446,7 @@ s.t.\ & \alpha\geq 0\\
 & \sum_{i=1}^{n}{\alpha_iy_i=0}
 \end{align*}
 $$
-​	Back to out qp solver, we need to rewrite our larangian function:
+​	我们依旧需要使用CVXOPT来求解我们的拉格朗日方程的最优化问题。首先，我们对我现有的式子进行变换可得：
 $$
 \begin{align*}
 L(\alpha)&=
@@ -456,9 +456,13 @@ L(\alpha)&=
 1^T\alpha\\
 \end{align*}\\
 $$
-​	Now we can start to implement our L2 reg Soft SVM:
+​	现在我们可以代码实现我们的L2正则软间隔：
 
 ```python
+import cvxopt
+from cvxopt import matrix as cvxopt_matrix
+from cvxopt import solvers as cvxopt_solvers
+
 def l2_norm_LinearSVM_Dual(X, y, C):
     zero_tol = 1e-4
     n, p = X.shape
@@ -499,39 +503,49 @@ def l2_norm_LinearSVM_Dual(X, y, C):
 
 
 
-### Customized Kernel SVM
+### 我们解决了所有线性可分的问题，那如果数据线性不可分呢？支持向量机的核方法
 
-​	Till now, we finished all the discussion of Linear SVM, we can now seperate data linearly in 2 dimension, or higher dimension. Now we come into a question, how do we make a decision boundary for points that can not be linear seperated. To begin with, lets start with the simplest example, seperating the following datasets.
+​	在我们继续讨论更多的支持向量机的之前，我们回归初心，一起整理一下我们是如何一步一步走到这里的。首先我们是为了解决“**在不同类别点中寻找一个最优的界限**”而提出的支持向量机的解法。然后我们针对最最简单的数据结构——两类完全线性可分、毫无重合、没有异常值的数据进行分类时提出了“**硬间隔**支持向量机”。然后考虑到该解法的应用场景很有局限性：**无法分离有重合的数据集，并且会极大地受到异常值的影响**，于是乎我们提出了更优的“**软间隔**向量机”的解法。 其中软间隔支持向量机增加了一项对错误标记的点的惩罚，**对于不同的惩罚方式**，我们引出了两种细分算法：**“L1正则软间隔支持向量机，和L2正则软间隔支持向量机“**。接着，我们在针对**求解软间隔向量机的”最优化问题“时**，我们又提出了两种不同的思路：**直接求解的”原问题“，和使用拉格朗日乘数法的”对偶问题“。**
+
+
+
+​	至此，我们已经对所有的线性可分的数据给出了解法。那么随着数据的复杂，我们将面对无法用线性可分的数据集，那这个时候我们所有讨论过的方法都无法适用于此类问题。那么有什么解决方法呢？这个时候就引入了一个新的**解决线性不可分的解法：核方法(Kernel)**。
+
+
+
+​	在我们正式的提出核方法前，我们先不妨尝试从直觉出发尝试一起解决一下这个问题，来建立一个对本问题的感觉，并且可以更好地学习并理解核方法。
 
 <img src="/img/1D_Kernel_SVM_question.png" alt= "hi">
 
-​	In the graph above, we can easily see that green points and red points that is clustered, or we can considering a problem such that we need to find out the amount of dosage of a certain medicine, green points representing the correct dosage, while red points representing either the medicine is under dosage or over dosage. Our question is to find the boundary of correct amount of dosage. 
+​		假设我们现在收集了一款药的用药剂量的数据，如上图，其中绿色的点代表合适的药量，红色的点表示不合适的药量。那么我们现在的问题就是寻找一个合适的边界，让我们可以知道合适的药量是多少？
 
 
 
-​	Intuitively, we may consider to divide the data set into two parts, with each parts containing all the points on one side of green points, and green points itself. Then, we can apply our Linear SVM algorithm we implemented before to draw two decision boundaries, one on each side, to seperate our data.
+​		经过前面我们的讨论，我们直觉上可能会想把红色点分为两组，一组在绿色的点左边，一组在绿色的点右边。这样我们就把这个线性不可分的问题转化成了两个线性可分的问题。也就是说，我们对第一组红点和全部绿点进行一次软间隔支持向量机，得到一个药量的下限的边界；再对第二组红点和全部绿点进行一次软间隔支持向量机，得到一个药量上线的边界；最后组合两次得到的边界，就可以得出最后合适药量的范围。
 
 
 
-​	This sounds like a very good solution, but considering our data goes into 2 dimension, we now can not solve with the problem with the same idea. For example, in the 2D seperation problem below, we would need infintly many axis to help us make a linear SVM, ie x-axis, y-axis, y=$\frac{1}{2}$x, y=$-\frac{1}{2}$x...
+​		直觉上，我们目前感觉这个方法仿佛天衣无缝，但是当我们尝试考虑更高维的问题时——”在下图中在二维空间内分离红绿两点“时，我们就发现这个思路受到了极大地阻碍。按照这个思路来考虑，我们就需要找到无限多的过原点的线来帮助我们线性区分所有的点，比如：x轴，y轴，y=$\frac{1}{2}$x， y=$-\frac{1}{2}$x... 然后我们需要把所有的点先映射到每一条线上，然后再进行数次软间隔支持向量机来得到在该直线上的分离，最后再组合所有得到的分割线，在2维空间中得到最终的答案。这显然无法实现，就算找到了实现方法，这个思路的运算时间会随着维度的增加而几何倍增长，故这个思路并不可行。
+
+
 
 <img src="/img/2D_Kernel_SVM_problem.png" alt="hi" style="zoom:36%;" />
 
-​	However, as we may consider in 2D non-linear seperating problem as the idea which we found as not useful as above, we consider to make a projection of the graph into different lines, and try to make a decision boundary on those lines. Now, what if we are considering this problem in another way, like if we want to project all the points into a higher dimensional space, will the points can be linearly seperatable? 
+​	
 
-​	The answer is Yes.
+​		然而当我们反着思考刚刚的思路，假如我们不把”我们高纬度的点通过投射逐渐降为到1维，然后进行区分“，而是反着“**把高纬的点投射到更高维的空间中，再更高维度空间中寻找线性可分的可能**”呢？我们是否会有机会**将本不能线性可分的数据在更高维变得线性可分**呢？答案是肯定的。**这就是核方法的核心思想**。
 
-​	Now lets go back to the simpliest 1D case.  Considering we are using a function $f(x)=x^2$, projecting each points into a 2D space, then we could find out that we can now seperate all the projected data points linearly, by using Linear SVM we discussed before.
+
+
+​		这虽然有些令人难以想象，但是我们不妨回到我们刚刚所用到的最简单的1维寻找药量的问题上。现在假设我们有一个方程 $f(x)=x^2$， 把所有在这条轴上的点映射到一条新的坐标y轴上(如下图)，我们惊奇的发现我们的竟然可以用一条直线把我们投射的点分开，也就是我们将这个问题重新转换成为了我们已会的问题。
 
 <img src="/img/1D_projection_Kernel.png" alt="hi" style="zoom:33%;" /> 
 
-
-
-​	Intuitively, we now ask ourself, if $f(x)=x^2$ is the best function for our projection? Can it be some function like $f(x)=x^3$?  or$f(x)=logx$ ?, and how do we find the best projection function?
+​		接下来，我们会问自己，那我们如何能找到合适的 $f(x)$ 去映射我们点呢？亦或是我们怎么知道$f(x)=x^2$，会是最合适的映射方程，为什么这个映射的方程不可以是 $f(x)=x^3$ ？又或者是 $f(x)=logx$呢 ?
 
 
 
-​	Now we met the core of **Non-linear SVM**, or **Customized Kernel SVM**. 
+​		很巧，**这就是核问题中使用高斯核的意义。**
 
 
 
