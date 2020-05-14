@@ -18,7 +18,7 @@
 
      ​		Now we have tutorial of:
 
-     * [Support Vector Machine or SVM](svm_en.html)
+     * [Support Vector Machine or SVM](SVM_EN.html)
 
      * Bayes (Comming soon)
 
