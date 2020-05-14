@@ -1,6 +1,6 @@
 
 
-<div style="text-align:right"><img src="./img/portrait.jpg" style="width: 300px" /></div>
+<div style="text-align:right"><img src="/img/portrait.jpg" style="width: 300px" /></div>
 
 <div style="text-align:right"><p><font size="6">Jinhan Mei 梅锦涵</font></p></div>
 
