@@ -22,7 +22,7 @@
 
 <div style="text-align:right"><p><font size="3">May 2020 at Beijing</font></p></div>
 
-### 
+
 
 ### Machine Learning Algorithm
 
@@ -30,7 +30,13 @@
 
    [支持向量机(SVM) : 在两类点钟寻扎最优的决策边界](SVM_CN.html)
 
-2. [Bayes Inference](Bayes_EN.html) #Underconstraction#
+2. Machine Learning:  Statistical Methods (Bayes Statistics)
+
+   机器学习：统计模型(贝叶斯统计模型)
+
+   * [Chatper 1 Probabilistic Models for Machine Learning](Bayes_Chapter_1.html) 
+
 3. [Time Series]() #Comming soon#
+
 4. [Basic Stats]() #Comming soon#
 
